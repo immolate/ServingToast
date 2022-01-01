@@ -31,7 +31,7 @@
 
   ./toasting-beta2.ps1 -whatever whatever -whatever2 whatever2
   
-.Changelog
+.CHANGELOG
 
 2021-12-31 - Research - :
     Version 1.00
