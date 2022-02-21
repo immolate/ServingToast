@@ -1,5 +1,7 @@
 # ServingToast
 
-The purpose of this script is to create custom TOASTS from your MSP company to the client machines.
+The purpose of this script is to create custom TOASTS from your MSP company to the client machines for the purpose of scheduling a reboot.
 
-You would call this script from your own automation software/scheduler and ideally fork it yourself.
+Usage:
+
+Toasting-Beta2.ps1 -ToastMessage "Your Custom Message" -CompanyName "Your Company Name" -LogoImage "C:\path\to\your\logo.png"

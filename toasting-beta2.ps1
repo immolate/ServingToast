@@ -6,12 +6,13 @@
   
   
 
-.PARAMETER <Parameter_Name>
+.PARAMETERS 
   
-    CompanyName - Your company name
-    LogoImage - <required> base 64 representation or URL to your publicly available logo
+    ToastMessage - <required> Your custom toast message
+    CompanyName - <required> Your company name
+    LogoImage - <optional> base 64 representation or URL to your publicly available logo
     HeroImage - <optional> base 64 representation of URL to your publicly available other image
-    Title/other - TBD
+    
 
 .INPUTS
 
@@ -29,7 +30,7 @@
   
 .EXAMPLE
 
-  ./toasting-beta2.ps1 -whatever whatever -whatever2 whatever2
+  ./toasting-beta2.ps1 -ToastMessage "Your Custom Message" -CompanyName "Your Company Name" -LogoImage "C:\path\to\your\logo.png"
   
 .CHANGELOG
 
@@ -54,6 +55,11 @@
 
 .ToDo
 Functionality to buttons
+Fix Hero Image / body not working
+
+.Credits
+Inspiration from BurntToast: https://www.powershellgallery.com/packages/BurntToast/0.4/Content/New-BurntToastNotification.ps1
+
 
 #>
 param (
@@ -67,7 +73,12 @@ param (
 
 [Parameter( Mandatory=$false,
             HelpMessage="Your logo helps your brand image pop. Specify a filename.")]
-[string]$LogoImage
+[string]$LogoImage,
+
+[Parameter( Mandatory=$false,
+            HelpMessage="Your hero image. Specify a filename.")]
+[string]$HeroImage
+
 
 
 
@@ -128,15 +139,15 @@ Desire ToastGeneric - not working yet
 <toast scenario="reminder">
     <visual>
     <binding template="ToastImageAndText02">
-        <image placement="hero" src='$heroimage'/>
+        <image id="2" placement="hero" src="$heroimage"/>
         <image id="1" placement="appLogoOverride" hint-crop="circle" src="$logoimage"/>
         <text placement="attribution">$ToastMessage</text>
-        <text placement="body">Whateve444</text>
-        <text name="HeaderText">Fuck off</text>
+        <text placement="body">"Whateve444"</text>
+        <text name="HeaderText">Whatever2</text>
         <text name="Title">Whatever again</text>
         <group>
             <subgroup>
-                <text hint-style="title" hint-wrap="true">bullshit text</text>
+                <text hint-style="title" hint-wrap="true">whatever text</text>
             </subgroup>
         </group>
         <group>
@@ -165,43 +176,6 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 
 
 <#
-Not mine - reference maybe
-
-
-[xml]$Toast = @"
-<toast scenario="$Scenario">
-    <visual>
-    <binding template="ToastGeneric">
-        <image placement="hero" src="$HeroImage"/>
-        <image id="1" placement="appLogoOverride" hint-crop="circle" src="$LogoImage"/>
-        <text placement="attribution">$AttributionText</text>
-        <text>$HeaderText</text>
-        <group>
-            <subgroup>
-                <text hint-style="title" hint-wrap="true">$TitleText</text>
-            </subgroup>
-        </group>
-        <group>
-            <subgroup>     
-                <text hint-style="body" hint-wrap="true">$BodyText1</text>
-            </subgroup>
-        </group>
-        <group>
-            <subgroup>     
-                <text hint-style="body" hint-wrap="true">$BodyText2</text>
-            </subgroup>
-        </group>
-    </binding>
-    </visual>
-    <actions>
-        <action activationType="protocol" arguments="$Action1" content="$ActionButton1Content" />
-        <action activationType="system" arguments="dismiss" content="$DismissButtonContent"/>
-    </actions>
-</toast>
-"@
-}
-
-#>
 # SIG # Begin signature block
 # MIISbQYJKoZIhvcNAQcCoIISXjCCEloCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
