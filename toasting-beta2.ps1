@@ -163,8 +163,14 @@ Desire ToastGeneric - not working yet
     </binding>
     </visual>
     <actions>
-        <action activationType="protocol" arguments="dismiss" content="Reboot NOW" />
-        <action activationType="system" arguments="dismiss" content="Reboot in 8 hours"/>
+        <input id="RebootTime" type="selection" defaultInput="Today">
+            <selection id="Today" content="6pm Today" />
+            <selection id="Tomorrow" content="6pm Tomorrow" />
+            <selection id="Friday" content="6pm Friday" />
+        </input>
+        <action activationType="system" arguments="snooze" hint-inputId="RebootTime" content="Schedule Reboot" />
+        <action activationType="system" arguments="dismiss" content="Reboot Now"/>
+        
     </actions>
 </toast>
 "@
@@ -175,7 +181,7 @@ $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("$CompanyName").Show($toast)
 
 
-<#
+
 # SIG # Begin signature block
 # MIISbQYJKoZIhvcNAQcCoIISXjCCEloCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
