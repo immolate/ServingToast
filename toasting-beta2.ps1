@@ -57,6 +57,18 @@
 Functionality to buttons
 Fix Hero Image / body not working
 
+FIRST Delete registry entry in: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\$CompanyName
+SECOND: Perform DELETE command as below
+SQLite DB: C:\Users\%username%\AppData\Local\Microsoft\Windows\Notifications\wpndatabase.db
+
+SELECT * from NotificationHandler
+where (PrimaryId LIKE '%$CompanyName%')
+
+DELETE from NotificationHandler
+where PrimaryId LIKE '%$CompanyName%'
+
+^ Confirmed working
+
 .Credits
 Inspiration from BurntToast: https://www.powershellgallery.com/packages/BurntToast/0.4/Content/New-BurntToastNotification.ps1
 
