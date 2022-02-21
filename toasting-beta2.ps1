@@ -50,21 +50,43 @@
     Generalize code
     Add version file
     Add licensing
+    Add Params for Message, Company, Logo, HeroImage
 
-
+.ToDo
+Functionality to buttons
 
 #>
+param (
+[Parameter( Mandatory=$true,
+            HelpMessage="The message you'll send in the Toast Notification")]
+[string]$ToastMessage,
+
+[Parameter( Mandatory=$true,
+            HelpMessage="Your company name helps users identify where this message is coming from.")]
+[string]$CompanyName,
+
+[Parameter( Mandatory=$false,
+            HelpMessage="Your logo helps your brand image pop. Specify a filename.")]
+[string]$LogoImage
+
+
+
+
+)
+
+
 [decimal]$ScriptVersion = "1.01"
 [string]$scriptName = $script:MyInvocation.MyCommand.Name
 $scriptPath = [IO.Path]::GetDirectoryName($script:MyInvocation.MyCommand.Path)
 $scriptFullName = (Join-Path $scriptPath $scriptName)
-[string]$CompanyName = "Your Company Name"
+# [string]$CompanyName = "Your Company Name"
 
+<# Skip signing check for now
 if ((Get-AuthenticodeSignature -FilePath $scriptFullName).Status -eq "NotSigned") {
     Write-Warning "Script is not signed - skipping"
     return $false
 }
-
+#>
 function VersionCheck {
     [CmdletBinding()]
     [OutputType([bool])]
@@ -72,32 +94,30 @@ function VersionCheck {
         [Parameter(Mandatory = $true)]
         $currentVersion
         )
-$oldName = [IO.Path]::GetFileNameWithoutExtension($scriptName) + ".old"
-$oldFullName = (Join-Path $scriptPath $oldName)
-$tempFullName = (Join-Path $env:TEMP $scriptName)
 $ScriptUrl = "https://raw.githubusercontent.com/immolate/ServingToast/main/ScriptVersions.csv"
 $versionCheck = ((Invoke-WebRequest $scriptUrl -UseBasicParsing).Content) | ConvertFrom-Csv
 if (($versionCheck | where { $_.Script -eq $scriptName }).version -gt $ScriptVersion) { 
-write-host "yes greater - perform update (line 81)"
+$oldName = [IO.Path]::GetFileNameWithoutExtension($scriptName) + ".old"
+$oldFullName = (Join-Path $scriptPath $oldName)
+$tempFullName = (Join-Path $env:TEMP $scriptName)
+
+
+write-host "Script Updated - Please re-run (line 81)"
+return $false
  }
-else { write-host "Up to date. Awesome." }
+else { write-host "Up to date. Awesome." ; return $true}
 
 }
 
-VersionCheck($ScriptVersion)
+if (!(VersionCheck($ScriptVersion))) { break }
 
 
-[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]
-[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime]
+[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
             
 $app_ID = 'ae02226e-fb1e-40e4-bb01-17ff41a39ad5'
-<#
-TODO
-LogoImage, HeroImage, CompanyName, Title/other messages generalized to be Params instead of set directly
-
-#>
-$LogoImage = ""
-$HeroImage = ""
+if (!($LogoImage)) {$LogoImage = ""}
+if (!($HeroImage)) {$HeroImage = ""}
 
 <#
 binding templates: ToastImageAndText01-4
@@ -110,7 +130,7 @@ Desire ToastGeneric - not working yet
     <binding template="ToastImageAndText02">
         <image placement="hero" src='$heroimage'/>
         <image id="1" placement="appLogoOverride" hint-crop="circle" src="$logoimage"/>
-        <text placement="attribution">Your system requires a reboot</text>
+        <text placement="attribution">$ToastMessage</text>
         <text placement="body">Whateve444</text>
         <text name="HeaderText">Fuck off</text>
         <text name="Title">Whatever again</text>
@@ -185,8 +205,8 @@ Not mine - reference maybe
 # SIG # Begin signature block
 # MIISbQYJKoZIhvcNAQcCoIISXjCCEloCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUmhmIdqR4fYTx3xviV4WoBATf
-# WKyggg29MIIDgjCCAmqgAwIBAgIQKu9/pzeTgbdFrij/JdFeqzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU46KCPLFn1504MpY2PtwUTQRR
+# /b2ggg29MIIDgjCCAmqgAwIBAgIQKu9/pzeTgbdFrij/JdFeqzANBgkqhkiG9w0B
 # AQsFADAxMS8wLQYDVQQDDCZQb3dlcnNoZWxsLlNtYXJ0RG9scGhpbnMuQ29tIFJv
 # b3QgQ2VydDAeFw0yMTExMDcxNzMwMTFaFw0yMzExMDcxNzM5NTdaMC4xLDAqBgNV
 # BAMMI0RhdmlkIEhhbWlsdG9uIFBvd2Vyc2hlbGwgU2lnbmF0dXJlMIIBIjANBgkq
@@ -263,23 +283,23 @@ Not mine - reference maybe
 # ZXJzaGVsbC5TbWFydERvbHBoaW5zLkNvbSBSb290IENlcnQCECrvf6c3k4G3Ra4o
 # /yXRXqswCQYFKw4DAhoFAKB4MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJ
 # KoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQB
-# gjcCARUwIwYJKoZIhvcNAQkEMRYEFI3UfViUL3U8wWVvjHOflbZvavq/MA0GCSqG
-# SIb3DQEBAQUABIIBAHDSyTdB78Xk+IziiYAw7HRQK0Ierx0pFaacybVNnHFqmhTQ
-# Av+MfFqo0MdwjlBVrO58fjWPNDr64MPl2eoClmSDtgEx2Xtae0pTU4juBPFF0lp7
-# xkLxbzbE2V9czPCSq2D47yg/ZvmPWngDBlsV5bGB8afsUOYVAAAbKRoeFKjZhXGc
-# 1o6V9+0cU0LD+HgYWq1Ly0LPN8kDryH1PBfjMKv7MAAtc//nzsR3SJOegyhk9C9J
-# CvZTPMrhDJbTcI88CrBH4/ThM04aiYEw7i1PeulaRAprS0iw6V4AoC3YUS6IgNWZ
-# Adwd9w0hgCrCyV9QvRrOohEwyNcJwIONbs0GEbGhggIwMIICLAYJKoZIhvcNAQkG
+# gjcCARUwIwYJKoZIhvcNAQkEMRYEFPsJWRWmCdSoQRRKGWhpD8rGf0xsMA0GCSqG
+# SIb3DQEBAQUABIIBAGJTAnDJ9tG093nCbITVYqVvQkEZp/MQiBscgXVR9Ti0MMGS
+# CcWwwe9wVdLJB9LYstUKrGnV05XAIquVmtpItYBofgX6u1qlllzLpA/VuWgS92EQ
+# ztMkUGKSe37LE1QD9F6tqJNsdxOUNYT1LVLsgve5EZlCFTJPfrirEj8GJUE66RdN
+# 2wBoiBlLO5xYQgS+Qix3Yssf1Ubj9YQ6Dt6hJFrY+udxgS6jZDKPL67TlcpNtc/f
+# pY7Ur0VT/J8m8rOrB70vlhqQp1uyMkzKIzzOyYjxvzQgVHoWUCMwQeWsM4OfKtcF
+# VGYMOqpa7FfYKWuRQhJLoyhesx7ss+UENRN2MuKhggIwMIICLAYJKoZIhvcNAQkG
 # MYICHTCCAhkCAQEwgYYwcjELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0
 # IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTExMC8GA1UEAxMoRGlnaUNl
 # cnQgU0hBMiBBc3N1cmVkIElEIFRpbWVzdGFtcGluZyBDQQIQDUJK4L46iP9gQCHO
 # FADw3TANBglghkgBZQMEAgEFAKBpMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-# HAYJKoZIhvcNAQkFMQ8XDTIyMDIyMDIyNTcwOVowLwYJKoZIhvcNAQkEMSIEIETA
-# 6+UsF1RbCDToL1TyElfddfS82z4sQiaGv/N5ooLjMA0GCSqGSIb3DQEBAQUABIIB
-# AI4gDY0pLuziVXv00NxmwHAb89yNk5ogtuAYGZhcdGJ32PXI4zcy2Ykd033W0Q/m
-# zp+Md9bmeTo3tlVVTTTwPIwcvYFTxsi303xh/1CTZ/AzGqfo99ariCUpwMxHs6c/
-# JfTFKBeAOfjQObMXZpcWZnqf472ls8CqbpfBlJhgGJK5kIK5xqedaDTZ+jqSA9G5
-# JxXpKIjpd+xHivLkmAMKWdgajUa8rrxSA+AsT+Uhq55OcmQWv+1+jFtYYpyHl/tq
-# M+Nr9WLKUI8fqd+wBXtupLIga/v/ffTQB3EcR6o980mNIMZvwkODx3tQTSf03GJM
-# lmrjftpSURj/Dd6irYdfDBk=
+# HAYJKoZIhvcNAQkFMQ8XDTIyMDIyMTE0MDAzMlowLwYJKoZIhvcNAQkEMSIEIGJh
+# /xsyIQLI2sv8dksslk1t5lS09AkROkR0EAemSHvTMA0GCSqGSIb3DQEBAQUABIIB
+# AJ7lxEa2Vxp+qcVJIITVGEfFUO8aWAH6L40vmGPsTVWLpXqel59xZ1M32ew8UwWc
+# Lwsw6wmWxqnDP3Id6arFyh2Vl6LrhstqmCuXEvUJzXLOAsHUgGBq/wAIL5CLTU1e
+# f4NCXyKXTZ3GwIhYCIPSpR0zk74lbeQYMOZ7p5kq3i/SO4EoP+rCWQL8PAsvV2K0
+# 2Z0zqrKJcRR+kRMb5l6L1artRygh2WxDneR0qClF1wewNzOSUFrPVTbUFn3T1yGy
+# vWroUU0Q8tmzbg+fYxV2uRCqePH7F2QZpuWdM5vQP7Z6nYkeqvptSDc9sC+iRdcZ
+# 2pKVUUt8sLH5uK87qdo33X4=
 # SIG # End signature block
