@@ -56,8 +56,10 @@
 .ToDo
 Functionality to buttons
 Fix Hero Image / body not working
+Auto-Update section not yet finished
 
 FIRST Delete registry entry in: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\$CompanyName
+^ Or change Enabled to 1
 SECOND: Perform DELETE command as below
 SQLite DB: C:\Users\%username%\AppData\Local\Microsoft\Windows\Notifications\wpndatabase.db
 
